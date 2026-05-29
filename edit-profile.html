@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B1220">
+    <title>Edit Profile - ZERØBYTE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #111827;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-hover: rgba(31, 41, 55, 0.8);
+            --bg-glass-solid: rgba(17, 24, 39, 0.95);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --primary-soft: rgba(59, 130, 246, 0.15);
+            --success: #10B981;
+            --error: #EF4444;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #F8FAFC;
+            --bg-glass-solid: rgba(255, 255, 255, 0.95);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border-glass: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            animation: rotate 40s linear infinite;
+        }
+        
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 70% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            animation: rotate-reverse 50s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo { font-size: 1.25rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), #8B5CF6); -webkit-background-clip: text; background-clip: text; color: transparent; cursor: pointer; }
+        .back-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.25rem; cursor: pointer; transition: color 0.2s; }
+        .back-btn:hover { color: var(--primary); }
+        
+        .container { max-width: 680px; margin: 0 auto; padding: 4rem 1rem 1rem; }
+        
+        .edit-card {
+            background: var(--bg-glass-solid);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: 2rem;
+        }
+        
+        .edit-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        .input-field, .textarea-field {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .textarea-field {
+            padding: 0.875rem 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .input-field:focus, .textarea-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-soft);
+        }
+        
+        .avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), #8B5CF6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .avatar-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .avatar-btn:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-save {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-save:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-danger {
+            background: transparent;
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background: var(--error);
+            color: white;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-glass);
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 4rem 1rem 1rem; }
+            .edit-card { padding: 1.5rem; }
+        }
+        
+        /* Modal for avatar upload */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .modal.show { visibility: visible; opacity: 1; }
+        .modal-content {
+            background: var(--bg-glass-solid);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; }
+        .file-input { width: 100%; padding: 1rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); color: var(--text-primary); margin-bottom: 1rem; }
+        .modal-btn { width: 100%; padding: 0.75rem; background: var(--primary); color: white; border: none; border-radius: var(--radius-lg); font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+
+<nav class="navbar">
+    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i> Back</button>
+    <div class="logo" id="logo"><i class="fas fa-bolt"></i> ZERØBYTE</div>
+    <div style="width: 60px;"></div>
+</nav>
+
+<div class="container">
+    <div class="edit-card">
+        <div class="edit-title">
+            <i class="fas fa-user-edit"></i> Edit Profile
+        </div>
+        
+        <!-- Avatar Section -->
+        <div class="avatar-section">
+            <div class="avatar-preview" id="avatarPreview">
+                <span id="avatarText">?</span>
+            </div>
+            <div class="avatar-actions">
+                <button class="avatar-btn" id="uploadAvatarBtn"><i class="fas fa-camera"></i> Upload Photo</button>
+                <button class="avatar-btn" id="removeAvatarBtn"><i class="fas fa-trash"></i> Remove</button>
+            </div>
+        </div>
+        
+        <!-- Form -->
+        <div class="form-group">
+            <label class="form-label">Display Name</label>
+            <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="displayName" class="input-field" placeholder="Your display name">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Username</label>
+            <div class="input-wrapper">
+                <i class="fas fa-at input-icon"></i>
+                <input type="text" id="username" class="input-field" placeholder="username" readonly style="opacity: 0.7; cursor: not-allowed;">
+            </div>
+            <small style="color: var(--text-muted); font-size: 0.7rem;">Username cannot be changed</small>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Bio</label>
+            <div class="input-wrapper">
+                <textarea id="bio" class="textarea-field" placeholder="Tell us about yourself..." maxlength="500"></textarea>
+            </div>
+            <div style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">
+                <span id="bioCount">0</span>/500
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Location</label>
+            <div class="input-wrapper">
+                <i class="fas fa-map-marker-alt input-icon"></i>
+                <input type="text" id="location" class="input-field" placeholder="City, Country">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Website</label>
+            <div class="input-wrapper">
+                <i class="fas fa-link input-icon"></i>
+                <input type="url" id="website" class="input-field" placeholder="https://yourwebsite.com">
+            </div>
+        </div>
+        
+        <button class="btn-save" id="saveBtn">
+            <i class="fas fa-save"></i> Save Changes
+        </button>
+        
+        <button class="btn-save btn-danger" id="cancelBtn" style="margin-top: 0.75rem; background: transparent; border: 1px solid var(--border-glass);">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+</div>
+
+<!-- Avatar Upload Modal -->
+<div class="modal" id="avatarModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-camera"></i> Update Avatar</h3>
+            <button class="modal-close" id="closeAvatarModal">&times;</button>
+        </div>
+        <input type="file" id="avatarInput" class="file-input" accept="image/*">
+        <button class="modal-btn" id="uploadAvatarConfirmBtn"><i class="fas fa-upload"></i> Upload</button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+    const SUPABASE_URL = 'https://tzfnmcbegbuwuzkqdphy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Zm5tY2JlZ2J1d3V6a3FkcGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MDM3NTEsImV4cCI6MjA5NTI3OTc1MX0.RQJIfVX_HB-4mtcqmZHrowyFXyGJTxoL6wNj6Y5R6Hk';
+    
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUserId = null;
+    let currentUser = null;
+    let selectedImageFile = null;
+    
+    // DOM Elements
+    const displayNameInput = document.getElementById('displayName');
+    const usernameInput = document.getElementById('username');
+    const bioInput = document.getElementById('bio');
+    const locationInput = document.getElementById('location');
+    const websiteInput = document.getElementById('website');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const backBtn = document.getElementById('backBtn');
+    const logo = document.getElementById('logo');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const avatarText = document.getElementById('avatarText');
+    const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+    const removeAvatarBtn = document.getElementById('removeAvatarBtn');
+    const bioCount = document.getElementById('bioCount');
+    const avatarModal = document.getElementById('avatarModal');
+    const closeAvatarModal = document.getElementById('closeAvatarModal');
+    const avatarInput = document.getElementById('avatarInput');
+    const uploadAvatarConfirmBtn = document.getElementById('uploadAvatarConfirmBtn');
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const icon = type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        toast.innerHTML = `<i class="fas ${icon}" style="margin-right: 0.5rem;"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function updateBioCount() {
+        bioCount.textContent = bioInput.value.length;
+    }
+    bioInput.addEventListener('input', updateBioCount);
+    
+    async function checkAuth() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session) { window.location.href = 'login.html'; return false; }
+        currentUserId = session.user.id;
+        return true;
+    }
+    
+    async function loadUserData() {
+        const { data, error } = await _supabase
+            .from('users')
+            .select('*')
+            .eq('id', currentUserId)
+            .single();
+        
+        if (error) {
+            showToast('Error loading profile', 'error');
+            return false;
+        }
+        
+        currentUser = data;
+        
+        displayNameInput.value = data.display_name || '';
+        usernameInput.value = '@' + (data.username || '');
+        bioInput.value = data.bio || '';
+        locationInput.value = data.location || '';
+        websiteInput.value = data.website || '';
+        updateBioCount();
+        
+        if (data.avatar_url) {
+            avatarText.innerHTML = `<img src="${data.avatar_url}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        } else {
+            const initial = (data.display_name || data.username || 'U').charAt(0).toUpperCase();
+            avatarText.innerHTML = initial;
+        }
+        
+        return true;
+    }
+    
+    async function uploadAvatar(file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${currentUserId}_${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await _supabase.storage
+            .from('avatars')
+            .upload(fileName, file);
+        
+        if (uploadError) {
+            showToast('Upload failed: ' + uploadError.message, 'error');
+            return null;
+        }
+        
+        const { data: { publicUrl } } = _supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+        
+        return publicUrl;
+    }
+    
+    async function saveChanges() {
+        saveBtn.disabled = true;
+        const originalHtml = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<div class="spinner"></div> Saving...';
+        
+        try {
+            const updates = {
+                display_name: displayNameInput.value.trim(),
+                bio: bioInput.value.trim(),
+                location: locationInput.value.trim(),
+                website: websiteInput.value.trim(),
+                updated_at: new Date().toISOString()
+            };
+            
+            // Upload avatar if selected
+            if (selectedImageFile) {
+                const avatarUrl = await uploadAvatar(selectedImageFile);
+                if (avatarUrl) {
+                    updates.avatar_url = avatarUrl;
+                    selectedImageFile = null;
+                }
+            }
+            
+            const { error } = await _supabase
+                .from('users')
+                .update(updates)
+                .eq('id', currentUserId);
+            
+            if (error) {
+                showToast('Error saving: ' + error.message, 'error');
+            } else {
+                showToast('Profile updated successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
+            }
+        } catch (error) {
+            showToast('Network error', 'error');
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHtml;
+        }
+    }
+    
+    async function removeAvatar() {
+        const { error } = await _supabase
+            .from('users')
+            .update({ avatar_url: null })
+            .eq('id', currentUserId);
+        
+        if (error) {
+            showToast('Error removing avatar', 'error');
+        } else {
+            showToast('Avatar removed', 'success');
+            const initial = (currentUser?.display_name || currentUser?.username || 'U').charAt(0).toUpperCase();
+            avatarText.innerHTML = initial;
+            currentUser.avatar_url = null;
+        }
+    }
+    
+    // Event Listeners
+    saveBtn.addEventListener('click', saveChanges);
+    
+    cancelBtn.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+    });
+    
+    backBtn.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+    });
+    
+    logo.addEventListener('click', () => {
+        window.location.href = 'home.html';
+    });
+    
+    uploadAvatarBtn.addEventListener('click', () => {
+        avatarModal.classList.add('show');
+    });
+    
+    closeAvatarModal.addEventListener('click', () => {
+        avatarModal.classList.remove('show');
+        avatarInput.value = '';
+    });
+    
+    removeAvatarBtn.addEventListener('click', async () => {
+        if (confirm('Remove your profile picture?')) {
+            await removeAvatar();
+        }
+    });
+    
+    uploadAvatarConfirmBtn.addEventListener('click', async () => {
+        const file = avatarInput.files[0];
+        if (!file) {
+            showToast('Please select an image', 'warning');
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            showToast('Please select an image file', 'error');
+            return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('Image must be less than 5MB', 'error');
+            return;
+        }
+        
+        selectedImageFile = file;
+        
+        // Preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            avatarText.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        };
+        reader.readAsDataURL(file);
+        
+        avatarModal.classList.remove('show');
+        avatarInput.value = '';
+        showToast('Avatar selected. Save to apply changes.', 'success');
+    });
+    
+    avatarModal.addEventListener('click', (e) => {
+        if (e.target === avatarModal) {
+            avatarModal.classList.remove('show');
+        }
+    });
+    
+    async function init() {
+        if (!await checkAuth()) return;
+        await loadUserData();
+    }
+    
+    init();
+})();
+</script>
+</body>
+</html>
