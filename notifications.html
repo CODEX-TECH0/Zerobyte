@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Notifications - ZERØBYTE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #111827;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-hover: rgba(31, 41, 55, 0.8);
+            --bg-glass-solid: rgba(17, 24, 39, 0.95);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-soft: rgba(139, 92, 246, 0.15);
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #F8FAFC;
+            --bg-glass-solid: rgba(255, 255, 255, 0.95);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --primary: #7C3AED;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: rotate 40s linear infinite;
+        }
+        
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            animation: rotate-reverse 50s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: var(--bg-glass-hover);
+            color: var(--primary);
+        }
+        
+        .nav-icons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .nav-icons i {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+        
+        .nav-icons i:hover {
+            color: var(--primary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--error);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 4rem 1rem 1rem;
+        }
+        
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .notifications-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .mark-all-btn {
+            background: none;
+            border: 1px solid var(--border-glass);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-xl);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+        
+        .mark-all-btn:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--bg-glass-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-xl);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .notification-item {
+            background: var(--bg-glass-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .notification-item:hover {
+            border-color: var(--primary-soft);
+            transform: translateX(4px);
+        }
+        
+        .notification-item.unread {
+            background: var(--primary-soft);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .notification-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-icon.like { color: var(--error); background: rgba(239, 68, 68, 0.1); }
+        .notification-icon.comment { color: var(--primary); background: rgba(139, 92, 246, 0.1); }
+        .notification-icon.follow { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .notification-icon.friend_request { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+        .notification-icon.message { color: var(--info); background: rgba(59, 130, 246, 0.1); }
+        .notification-icon.system { color: var(--primary); background: rgba(139, 92, 246, 0.1); }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-text {
+            font-size: 0.9375rem;
+            line-height: 1.4;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+        
+        .notification-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .notification-actor {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .actor-avatar {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .actor-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .actor-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .unread-dot {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.5;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-glass);
+            padding: 0.5rem 1rem;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+        
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+        
+        .nav-item span {
+            font-size: 0.7rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-glass);
+            z-index: 1100;
+            animation: slideUp 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        .badge-blue { color: #3B82F6; margin-left: 0.25rem; }
+        .badge-gold { color: #F59E0B; margin-left: 0.25rem; }
+        .badge-admin { color: #8B5CF6; margin-left: 0.25rem; }
+        
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar .back-btn {
+                display: none;
+            }
+            .filter-tab {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+            .notification-text {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+
+<!-- Navbar -->
+<div class="navbar">
+    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+    <div class="logo" id="logo"><i class="fas fa-bolt"></i> ZERØBYTE</div>
+    <div class="nav-icons">
+        <i class="fas fa-bell" id="notificationIcon"></i>
+        <i class="fas fa-sign-out-alt" id="logoutIcon"></i>
+    </div>
+</div>
+
+<div class="container">
+    <div class="notifications-header">
+        <div class="notifications-title"><i class="fas fa-bell"></i> Notifications</div>
+        <button class="mark-all-btn" id="markAllBtn"><i class="fas fa-check-double"></i> Mark all read</button>
+    </div>
+    
+    <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="like"><i class="fas fa-heart"></i> Likes</button>
+        <button class="filter-tab" data-filter="comment"><i class="fas fa-comment"></i> Comments</button>
+        <button class="filter-tab" data-filter="follow"><i class="fas fa-user-plus"></i> Follows</button>
+        <button class="filter-tab" data-filter="friend_request"><i class="fas fa-user-friends"></i> Friend Requests</button>
+    </div>
+    
+    <div id="notificationsList">
+        <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div>
+    </div>
+</div>
+
+<!-- Bottom Navigation - ONLY 3 ICONS -->
+<div class="bottom-nav">
+    <button class="nav-item" data-page="home">
+        <i class="fas fa-house"></i>
+        <span>Home</span>
+    </button>
+    <button class="nav-item" data-page="chats">
+        <i class="fas fa-message"></i>
+        <span>Chats</span>
+    </button>
+    <button class="nav-item active" data-page="profile">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ========================================
+// ZERØBYTE - NOTIFICATIONS PAGE
+// ========================================
+
+(function() {
+    const SUPABASE_URL = 'https://tzfnmcbegbuwuzkqdphy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Zm5tY2JlZ2J1d3V6a3FkcGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MDM3NTEsImV4cCI6MjA5NTI3OTc1MX0.RQJIfVX_HB-4mtcqmZHrowyFXyGJTxoL6wNj6Y5R6Hk';
+    
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUserId = null;
+    let currentFilter = 'all';
+    let notifications = [];
+    
+    const notificationsList = document.getElementById('notificationsList');
+    const markAllBtn = document.getElementById('markAllBtn');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const notificationIcon = document.getElementById('notificationIcon');
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const icon = type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        toast.innerHTML = `<i class="fas ${icon}" style="margin-right: 0.5rem;"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+        return new Date(date).toLocaleDateString();
+    }
+    
+    function getIconAndClass(type) {
+        switch(type) {
+            case 'like': return { icon: 'fas fa-heart', class: 'like', label: 'liked your post' };
+            case 'comment': return { icon: 'fas fa-comment', class: 'comment', label: 'commented on your post' };
+            case 'follow': return { icon: 'fas fa-user-plus', class: 'follow', label: 'started following you' };
+            case 'friend_request': return { icon: 'fas fa-user-friends', class: 'friend_request', label: 'sent you a friend request' };
+            case 'message': return { icon: 'fas fa-envelope', class: 'message', label: 'sent you a message' };
+            default: return { icon: 'fas fa-bell', class: 'system', label: '' };
+        }
+    }
+    
+    async function updateNotificationBadge() {
+        if (!currentUserId) return;
+        const { count } = await _supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', currentUserId)
+            .eq('is_read', false);
+        
+        const existingBadge = notificationIcon?.querySelector('.notification-badge');
+        if (existingBadge) existingBadge.remove();
+        
+        if (count > 0 && notificationIcon) {
+            const badge = document.createElement('span');
+            badge.className = 'notification-badge';
+            badge.textContent = count > 9 ? '9+' : count;
+            notificationIcon.style.position = 'relative';
+            notificationIcon.appendChild(badge);
+        }
+    }
+    
+    async function checkAuth() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        currentUserId = session.user.id;
+        return true;
+    }
+    
+    async function loadNotifications() {
+        notificationsList.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading notifications...</p></div>';
+        
+        let query = _supabase
+            .from('notifications')
+            .select('*')
+            .eq('user_id', currentUserId)
+            .order('created_at', { ascending: false })
+            .limit(50);
+        
+        if (currentFilter !== 'all') {
+            query = query.eq('type', currentFilter);
+        }
+        
+        const { data: notifData, error: notifError } = await query;
+        
+        let allItems = [...(notifData || [])];
+        
+        if (currentFilter === 'friend_request' || currentFilter === 'all') {
+            const { data: friendRequests, error: frError } = await _supabase
+                .from('friend_requests')
+                .select('*, users!friend_requests_sender_id_fkey(id, username, display_name, avatar_url)')
+                .eq('receiver_id', currentUserId)
+                .eq('status', 'pending');
+            
+            if (friendRequests && friendRequests.length > 0) {
+                for (const fr of friendRequests) {
+                    const sender = fr.users;
+                    if (sender) {
+                        const exists = allItems.some(n => n.type === 'friend_request' && n.actor_id === fr.sender_id);
+                        if (!exists) {
+                            allItems.push({
+                                id: `fr_${fr.id}`,
+                                type: 'friend_request',
+                                actor_id: fr.sender_id,
+                                content: `${sender.display_name || sender.username} sent you a friend request`,
+                                created_at: fr.created_at,
+                                is_read: false,
+                                target_id: fr.sender_id,
+                                target_type: 'user'
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        allItems.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        if (allItems.length === 0) {
+            let emptyMessage = 'No notifications yet';
+            if (currentFilter !== 'all') {
+                emptyMessage = `No ${currentFilter} notifications yet`;
+            }
+            notificationsList.innerHTML = `<div class="empty-state"><i class="fas fa-bell-slash"></i><p>${emptyMessage}</p></div>`;
+            return;
+        }
+        
+        const actorIds = [...new Set(allItems.filter(n => n.actor_id).map(n => n.actor_id))];
+        const actorsMap = {};
+        
+        for (const id of actorIds) {
+            const { data: actor } = await _supabase
+                .from('users')
+                .select('id, username, display_name, avatar_url')
+                .eq('id', id)
+                .single();
+            if (actor) actorsMap[id] = actor;
+        }
+        
+        notificationsList.innerHTML = allItems.map(notif => {
+            const actor = notif.actor_id ? actorsMap[notif.actor_id] : null;
+            const { icon, class: iconClass, label } = getIconAndClass(notif.type);
+            const isUnread = !notif.is_read;
+            
+            let displayName = 'Someone';
+            let actorHtml = '';
+            
+            if (actor) {
+                displayName = actor.display_name || actor.username;
+                const avatarInitial = displayName.charAt(0).toUpperCase();
+                actorHtml = `
+                    <div class="notification-actor">
+                        <div class="actor-avatar">${avatarInitial}</div>
+                        <span class="actor-name">${escapeHtml(displayName)}</span>
+                    </div>
+                `;
+            }
+            
+            let content = notif.content || '';
+            if (!content && label) {
+                content = `${displayName} ${label}`;
+            }
+            
+            return `
+                <div class="notification-item ${isUnread ? 'unread' : ''}" data-id="${notif.id}" data-target-id="${notif.target_id || ''}" data-target-type="${notif.target_type || ''}">
+                    <div class="notification-icon ${iconClass}"><i class="${icon}"></i></div>
+                    <div class="notification-content">
+                        ${actorHtml}
+                        <div class="notification-text">${escapeHtml(content)}</div>
+                        <div class="notification-time">${formatTimeAgo(notif.created_at)}</div>
+                    </div>
+                    ${isUnread ? '<div class="unread-dot"></div>' : ''}
+                </div>
+            `;
+        }).join('');
+        
+        document.querySelectorAll('.notification-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const notifId = item.dataset.id;
+                const targetId = item.dataset.targetId;
+                const targetType = item.dataset.targetType;
+                
+                if (item.classList.contains('unread') && !notifId.startsWith('fr_')) {
+                    await _supabase.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).eq('id', notifId);
+                }
+                
+                if (targetId && targetType) {
+                    if (targetType === 'post') window.location.href = `home.html?post=${targetId}`;
+                    else if (targetType === 'user') window.location.href = `profile.html?id=${targetId}`;
+                }
+            });
+        });
+    }
+    
+    async function markAllAsRead() {
+        const unreadIds = notifications.filter(n => !n.is_read && !n.id.startsWith('fr_')).map(n => n.id);
+        if (unreadIds.length === 0) { showToast('No unread notifications', 'info'); return; }
+        
+        const { error } = await _supabase.from('notifications').update({ is_read: true, read_at: new Date().toISOString() }).in('id', unreadIds);
+        if (error) showToast('Failed to mark all as read', 'error');
+        else { showToast('All notifications marked as read', 'success'); await loadNotifications(); }
+    }
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            loadNotifications();
+        });
+    });
+    
+    markAllBtn.addEventListener('click', markAllAsRead);
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+            if (page === 'home') window.location.href = 'home.html';
+            if (page === 'chats') window.location.href = 'chats.html';
+            if (page === 'profile') window.location.href = 'profile.html';
+        });
+    });
+    
+    document.getElementById('backBtn')?.addEventListener('click', () => window.location.href = 'home.html');
+    document.getElementById('logo')?.addEventListener('click', () => window.location.href = 'home.html');
+    document.getElementById('logoutIcon')?.addEventListener('click', async () => {
+        await _supabase.auth.signOut();
+        window.location.href = 'login.html';
+    });
+    
+    function subscribeToNotifications() {
+        _supabase.channel('notifications_changes')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUserId}` }, () => loadNotifications())
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUserId}` }, () => loadNotifications())
+            .subscribe();
+    }
+    
+    async function init() {
+        if (!await checkAuth()) return;
+        await loadNotifications();
+        await updateNotificationBadge();
+        subscribeToNotifications();
+        setInterval(updateNotificationBadge, 30000);
+    }
+    init();
+})();
+</script>
+</body>
+</html>

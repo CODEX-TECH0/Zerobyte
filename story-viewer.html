@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Story - ZERØBYTE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #111827;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-solid: rgba(17, 24, 39, 0.95);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --success: #10B981;
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #F8FAFC;
+            --bg-glass-solid: rgba(255, 255, 255, 0.95);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --primary: #7C3AED;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: rotate 40s linear infinite;
+        }
+        
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            animation: rotate-reverse 50s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        .story-container {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+        
+        .story-content {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .story-media {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 20px;
+        }
+        
+        .story-header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+            padding: 15px;
+            border-radius: 20px;
+        }
+        
+        .story-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), #3B82F6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .story-user-info {
+            flex: 1;
+        }
+        
+        .story-user-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+        }
+        
+        .story-time {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .story-caption {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 12px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.875rem;
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+        
+        .progress-bars {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            z-index: 20;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: white;
+            transition: width 0.1s linear;
+        }
+        
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s;
+        }
+        
+        .nav-arrow:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        
+        .nav-arrow.left {
+            left: 10px;
+        }
+        
+        .nav-arrow.right {
+            right: 10px;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: all 0.2s;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        .close-btn:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        
+        @media (max-width: 768px) {
+            .nav-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+
+<div class="story-container" id="storyContainer">
+    <div class="progress-bars" id="progressBars"></div>
+    <button class="close-btn" id="closeBtn"><i class="fas fa-times"></i></button>
+    <div class="nav-arrow left" id="prevBtn"><i class="fas fa-chevron-left"></i></div>
+    <div class="story-content" id="storyContent"></div>
+    <div class="nav-arrow right" id="nextBtn"><i class="fas fa-chevron-right"></i></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+    const SUPABASE_URL = 'https://tzfnmcbegbuwuzkqdphy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Zm5tY2JlZ2J1d3V6a3FkcGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MDM3NTEsImV4cCI6MjA5NTI3OTc1MX0.RQJIfVX_HB-4mtcqmZHrowyFXyGJTxoL6wNj6Y5R6Hk';
+    
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUserId = null;
+    let stories = [];
+    let currentIndex = 0;
+    let progressInterval = null;
+    let currentDuration = 10000;
+    
+    const storyContent = document.getElementById('storyContent');
+    const progressBars = document.getElementById('progressBars');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return `${seconds}s ago`;
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        return new Date(date).toLocaleDateString();
+    }
+    
+    function displayAvatar(container, avatarUrl, name) {
+        if (!container) return;
+        if (avatarUrl && avatarUrl.startsWith('http')) {
+            container.innerHTML = `<img src="${avatarUrl}" alt="avatar">`;
+        } else {
+            const initial = (name || 'U').charAt(0).toUpperCase();
+            container.innerHTML = initial;
+        }
+    }
+    
+    function clearProgress() {
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    }
+    
+    function startProgress(duration) {
+        clearProgress();
+        const fill = document.querySelector(`.progress-fill[data-index="${currentIndex}"]`);
+        if (!fill) return;
+        
+        fill.style.width = '0%';
+        const startTime = Date.now();
+        
+        progressInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const percent = Math.min((elapsed / duration) * 100, 100);
+            fill.style.width = `${percent}%`;
+            
+            if (percent >= 100) {
+                clearProgress();
+                nextStory();
+            }
+        }, 50);
+    }
+    
+    async function markStoryViewed(storyId) {
+        await _supabase.from('story_views').insert({
+            story_id: storyId,
+            viewer_id: currentUserId,
+            viewed_at: new Date().toISOString()
+        }).select();
+    }
+    
+    function renderCurrentStory() {
+        if (!stories.length || currentIndex >= stories.length) {
+            window.location.href = 'home.html';
+            return;
+        }
+        
+        const story = stories[currentIndex];
+        const mediaElement = story.media_type === 'video' 
+            ? `<video src="${story.media_url}" class="story-media" autoplay muted></video>`
+            : `<img src="${story.media_url}" class="story-media" alt="story">`;
+        
+        storyContent.innerHTML = `
+            <div class="story-header">
+                <div class="story-avatar" id="storyAvatar"></div>
+                <div class="story-user-info">
+                    <div class="story-user-name">${escapeHtml(story.user?.display_name || story.user?.username || 'User')}</div>
+                    <div class="story-time">${formatTimeAgo(story.created_at)}</div>
+                </div>
+            </div>
+            ${mediaElement}
+            ${story.caption ? `<div class="story-caption">${escapeHtml(story.caption)}</div>` : ''}
+        `;
+        
+        const avatarContainer = document.getElementById('storyAvatar');
+        if (avatarContainer && story.user) {
+            displayAvatar(avatarContainer, story.user.avatar_url, story.user.display_name || story.user.username);
+        }
+        
+        markStoryViewed(story.id);
+        
+        const duration = story.media_type === 'video' ? 30000 : 10000;
+        startProgress(duration);
+        
+        if (story.media_type === 'video') {
+            const video = document.querySelector('.story-media');
+            if (video && video.tagName === 'VIDEO') {
+                video.onended = () => nextStory();
+                video.play().catch(e => console.log('Video autoplay failed:', e));
+            }
+        }
+    }
+    
+    function nextStory() {
+        clearProgress();
+        if (currentIndex + 1 < stories.length) {
+            currentIndex++;
+            renderCurrentStory();
+            updateProgressBars();
+        } else {
+            window.location.href = 'home.html';
+        }
+    }
+    
+    function prevStory() {
+        clearProgress();
+        if (currentIndex - 1 >= 0) {
+            currentIndex--;
+            renderCurrentStory();
+            updateProgressBars();
+        }
+    }
+    
+    function updateProgressBars() {
+        progressBars.innerHTML = stories.map((_, idx) => `
+            <div class="progress-bar">
+                <div class="progress-fill" data-index="${idx}" style="width: ${idx < currentIndex ? '100%' : idx === currentIndex ? '0%' : '0%'}"></div>
+            </div>
+        `).join('');
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    async function loadStories() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user');
+        
+        if (!userId) {
+            showToast('No user specified', 'error');
+            setTimeout(() => window.location.href = 'home.html', 1500);
+            return;
+        }
+        
+        const { data: userStories, error } = await _supabase
+            .from('stories')
+            .select('*, users!stories_user_id_fkey(id, username, display_name, avatar_url)')
+            .eq('user_id', userId)
+            .gte('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: true });
+        
+        if (error || !userStories || userStories.length === 0) {
+            showToast('No stories found', 'error');
+            setTimeout(() => window.location.href = 'home.html', 1500);
+            return;
+        }
+        
+        stories = userStories;
+        updateProgressBars();
+        renderCurrentStory();
+    }
+    
+    async function checkAuth() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        currentUserId = session.user.id;
+        return true;
+    }
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    prevBtn.addEventListener('click', prevStory);
+    nextBtn.addEventListener('click', nextStory);
+    closeBtn.addEventListener('click', () => window.location.href = 'home.html');
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevStory();
+        if (e.key === 'ArrowRight') nextStory();
+        if (e.key === 'Escape') window.location.href = 'home.html';
+    });
+    
+    storyContent.addEventListener('click', (e) => {
+        const rect = storyContent.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        if (x < rect.width / 2) {
+            prevStory();
+        } else {
+            nextStory();
+        }
+    });
+    
+    async function init() {
+        if (!await checkAuth()) return;
+        await loadStories();
+    }
+    
+    init();
+})();
+</script>
+</body>
+</html>

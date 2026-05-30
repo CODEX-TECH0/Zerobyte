@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Search - ZERØBYTE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #111827;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-hover: rgba(31, 41, 55, 0.8);
+            --bg-glass-solid: rgba(17, 24, 39, 0.95);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-soft: rgba(139, 92, 246, 0.15);
+            --success: #10B981;
+            --error: #EF4444;
+            --warning: #F59E0B;
+            --info: #3B82F6;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #F8FAFC;
+            --bg-glass-solid: rgba(255, 255, 255, 0.95);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border-glass: rgba(0, 0, 0, 0.1);
+            --primary: #7C3AED;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: rotate 40s linear infinite;
+        }
+        
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            animation: rotate-reverse 50s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .back-btn:hover {
+            background: var(--bg-glass-hover);
+            color: var(--primary);
+        }
+        
+        .nav-icons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .nav-icons i {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+        
+        .nav-icons i:hover {
+            color: var(--primary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--error);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 1rem 1rem;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.5rem;
+            background: var(--bg-glass-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--bg-glass-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            padding: 0.5rem;
+        }
+        
+        .filter-tab {
+            flex: 1;
+            padding: 0.75rem;
+            text-align: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .result-card {
+            background: var(--bg-glass-solid);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .result-card:hover {
+            border-color: var(--primary-soft);
+            transform: translateX(4px);
+        }
+        
+        .result-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--info));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .result-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .result-info {
+            flex: 1;
+        }
+        
+        .result-name {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .result-username {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .result-bio {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .result-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            border: none;
+            border-radius: var(--radius-xl);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.friend {
+            background: var(--success);
+        }
+        
+        .action-btn.pending {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.5;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-glass);
+            padding: 0.5rem 1rem;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+        }
+        
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+        
+        .nav-item span {
+            font-size: 0.7rem;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-glass);
+            z-index: 1100;
+            animation: slideUp 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        .badge-blue { color: #3B82F6; margin-left: 0.25rem; }
+        .badge-gold { color: #F59E0B; margin-left: 0.25rem; }
+        .badge-admin { color: #8B5CF6; margin-left: 0.25rem; }
+        
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar .back-btn {
+                display: none;
+            }
+            .result-card {
+                flex-wrap: wrap;
+            }
+            .action-btn {
+                width: 100%;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+
+<!-- Navbar -->
+<div class="navbar">
+    <button class="back-btn" id="backBtn"><i class="fas fa-arrow-left"></i></button>
+    <div class="logo" id="logo"><i class="fas fa-bolt"></i> ZERØBYTE</div>
+    <div class="nav-icons">
+        <i class="fas fa-bell" id="notificationIcon"></i>
+        <i class="fas fa-sign-out-alt" id="logoutIcon"></i>
+    </div>
+</div>
+
+<div class="container">
+    <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search users, posts, or channels...">
+    </div>
+    
+    <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="users">👥 Users</button>
+        <button class="filter-tab" data-filter="posts">📝 Posts</button>
+        <button class="filter-tab" data-filter="channels">📡 Channels</button>
+    </div>
+    
+    <div id="resultsContainer">
+        <div class="empty-state"><i class="fas fa-search"></i><p>Search for users, posts, or channels</p></div>
+    </div>
+</div>
+
+<!-- Bottom Navigation - ONLY 3 ICONS -->
+<div class="bottom-nav">
+    <button class="nav-item" data-page="home">
+        <i class="fas fa-house"></i>
+        <span>Home</span>
+    </button>
+    <button class="nav-item" data-page="chats">
+        <i class="fas fa-message"></i>
+        <span>Chats</span>
+    </button>
+    <button class="nav-item active" data-page="profile">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ========================================
+// ZERØBYTE - SEARCH PAGE
+// ========================================
+
+(function() {
+    const SUPABASE_URL = 'https://tzfnmcbegbuwuzkqdphy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Zm5tY2JlZ2J1d3V6a3FkcGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MDM3NTEsImV4cCI6MjA5NTI3OTc1MX0.RQJIfVX_HB-4mtcqmZHrowyFXyGJTxoL6wNj6Y5R6Hk';
+    
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUserId = null;
+    let currentFilter = 'users';
+    let friends = new Set();
+    let sentRequests = new Set();
+    let searchTimeout = null;
+    
+    const searchInput = document.getElementById('searchInput');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const notificationIcon = document.getElementById('notificationIcon');
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const icon = type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        toast.innerHTML = `<i class="fas ${icon}" style="margin-right: 0.5rem;"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        if (seconds < 60) return 'just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+        return new Date(date).toLocaleDateString();
+    }
+    
+    function getBadgeIcon(badge) {
+        if (badge === 'admin') return '<i class="fas fa-shield-alt badge-admin"></i>';
+        if (badge === 'gold') return '<i class="fas fa-crown badge-gold</i>';
+        if (badge === 'blue') return '<i class="fas fa-check-circle badge-blue"></i>';
+        return '';
+    }
+    
+    function displayAvatar(container, avatarUrl, name) {
+        if (!container) return;
+        if (avatarUrl && avatarUrl.startsWith('http')) {
+            container.innerHTML = `<img src="${avatarUrl}" alt="avatar" onerror="this.onerror=null; this.parentElement.innerHTML='${escapeHtml(name.charAt(0).toUpperCase())}';">`;
+        } else {
+            const initial = (name || 'U').charAt(0).toUpperCase();
+            container.innerHTML = initial;
+        }
+    }
+    
+    async function updateNotificationBadge() {
+        if (!currentUserId) return;
+        const { count } = await _supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', currentUserId)
+            .eq('is_read', false);
+        
+        const existingBadge = notificationIcon?.querySelector('.notification-badge');
+        if (existingBadge) existingBadge.remove();
+        
+        if (count > 0 && notificationIcon) {
+            const badge = document.createElement('span');
+            badge.className = 'notification-badge';
+            badge.textContent = count > 9 ? '9+' : count;
+            notificationIcon.style.position = 'relative';
+            notificationIcon.appendChild(badge);
+        }
+    }
+    
+    async function checkAuth() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (!session) {
+            window.location.href = 'login.html';
+            return false;
+        }
+        currentUserId = session.user.id;
+        
+        const { data: friendsData } = await _supabase.from('friends').select('friend_id').eq('user_id', currentUserId);
+        if (friendsData) friendsData.forEach(f => friends.add(f.friend_id));
+        
+        const { data: requestsData } = await _supabase.from('friend_requests').select('receiver_id').eq('sender_id', currentUserId).eq('status', 'pending');
+        if (requestsData) requestsData.forEach(r => sentRequests.add(r.receiver_id));
+        
+        return true;
+    }
+    
+    async function sendFriendRequest(receiverId, receiverName) {
+        if (friends.has(receiverId)) {
+            showToast(`${receiverName} is already your friend`, 'warning');
+            return false;
+        }
+        
+        if (sentRequests.has(receiverId)) {
+            showToast(`Friend request already sent to ${receiverName}`, 'warning');
+            return false;
+        }
+        
+        const { error } = await _supabase.from('friend_requests').insert({
+            sender_id: currentUserId,
+            receiver_id: receiverId,
+            created_at: new Date().toISOString()
+        });
+        
+        if (error) {
+            showToast('Failed to send request', 'error');
+            return false;
+        }
+        
+        sentRequests.add(receiverId);
+        showToast(`Friend request sent to ${receiverName}!`, 'success');
+        return true;
+    }
+    
+    async function searchUsers(query) {
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Type at least 2 characters to search</p></div>';
+            return;
+        }
+        
+        const { data, error } = await _supabase
+            .from('users')
+            .select('*')
+            .neq('id', currentUserId)
+            .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+            .limit(20);
+        
+        if (error) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error searching users</p></div>';
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>No users found</p></div>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = data.map(user => {
+            const isFriend = friends.has(user.id);
+            const isPending = sentRequests.has(user.id);
+            const displayName = user.display_name || user.username;
+            const badgeIcon = getBadgeIcon(user.verification_badge);
+            
+            let buttonHtml = '';
+            if (isFriend) {
+                buttonHtml = `<button class="action-btn friend" disabled><i class="fas fa-check"></i> Friend</button>`;
+            } else if (isPending) {
+                buttonHtml = `<button class="action-btn pending" disabled><i class="fas fa-clock"></i> Request Sent</button>`;
+            } else {
+                buttonHtml = `<button class="action-btn" data-user-id="${user.id}" data-user-name="${escapeHtml(displayName)}"><i class="fas fa-user-plus"></i> Add Friend</button>`;
+            }
+            
+            return `
+                <div class="result-card" data-user-id="${user.id}">
+                    <div class="result-avatar" id="result-avatar-${user.id}"></div>
+                    <div class="result-info">
+                        <div class="result-name">${escapeHtml(displayName)} ${badgeIcon}</div>
+                        <div class="result-username">@${escapeHtml(user.username)}</div>
+                        <div class="result-bio">${escapeHtml(user.bio || 'No bio yet')}</div>
+                    </div>
+                    ${buttonHtml}
+                </div>
+            `;
+        }).join('');
+        
+        data.forEach(user => {
+            const avatarContainer = document.getElementById(`result-avatar-${user.id}`);
+            if (avatarContainer) {
+                displayAvatar(avatarContainer, user.avatar_url, user.display_name || user.username);
+            }
+        });
+        
+        document.querySelectorAll('.action-btn:not(.friend):not(.pending)').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const userId = btn.dataset.userId;
+                const userName = btn.dataset.userName;
+                await sendFriendRequest(userId, userName);
+                await searchUsers(searchInput.value);
+            });
+        });
+        
+        document.querySelectorAll('.result-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const userId = card.dataset.userId;
+                window.location.href = `profile.html?id=${userId}`;
+            });
+        });
+    }
+    
+    async function searchPosts(query) {
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Type at least 2 characters to search</p></div>';
+            return;
+        }
+        
+        const { data, error } = await _supabase
+            .from('posts')
+            .select('*, users!posts_user_id_fkey(id, username, display_name, avatar_url, verification_badge)')
+            .or(`title.ilike.%${query}%,content.ilike.%${query}%`)
+            .eq('status', 'active')
+            .order('created_at', { ascending: false })
+            .limit(30);
+        
+        if (error) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error searching posts</p></div>';
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-newspaper"></i><p>No posts found</p></div>';
+            return;
+        }
+        
+        resultsContainer.innerHTML = data.map(post => {
+            const author = post.users;
+            const displayName = author?.display_name || author?.username || 'User';
+            const badgeIcon = getBadgeIcon(author?.verification_badge);
+            
+            return `
+                <div class="result-card" data-post-id="${post.id}">
+                    <div class="result-avatar" id="post-avatar-${post.id}"></div>
+                    <div class="result-info">
+                        <div class="result-name">${escapeHtml(displayName)} ${badgeIcon}</div>
+                        <div class="result-username">@${escapeHtml(author?.username || 'unknown')}</div>
+                        <div class="result-bio">${post.title ? `<strong>${escapeHtml(post.title)}</strong><br>` : ''}${escapeHtml(post.content.substring(0, 150))}${post.content.length > 150 ? '...' : ''}</div>
+                        <div class="result-meta"><i class="fas fa-heart"></i> ${post.like_count || 0} · <i class="fas fa-comment"></i> ${post.comment_count || 0} · ${formatTimeAgo(post.created_at)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        data.forEach(post => {
+            const avatarContainer = document.getElementById(`post-avatar-${post.id}`);
+            if (avatarContainer && post.users) {
+                displayAvatar(avatarContainer, post.users.avatar_url, post.users.display_name || post.users.username);
+            }
+        });
+        
+        document.querySelectorAll('.result-card').forEach(card => {
+            card.addEventListener('click', () => {
+                window.location.href = `home.html?post=${card.dataset.postId}`;
+            });
+        });
+    }
+    
+    async function searchChannels(query) {
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-search"></i><p>Type at least 2 characters to search</p></div>';
+            return;
+        }
+        
+        const { data, error } = await _supabase
+            .from('channels')
+            .select('*')
+            .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+            .eq('status', 'active')
+            .limit(20);
+        
+        if (error) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error searching channels</p></div>';
+            return;
+        }
+        
+        if (!data || data.length === 0) {
+            resultsContainer.innerHTML = '<div class="empty-state"><i class="fas fa-broadcast-tower"></i><p>No channels found</p></div>';
+            return;
+        }
+        
+        const icons = { page: 'fa-newspaper', broadcast: 'fa-bullhorn', feed: 'fa-rss' };
+        
+        resultsContainer.innerHTML = data.map(channel => {
+            const icon = icons[channel.type] || 'fa-hashtag';
+            return `
+                <div class="result-card" data-channel-id="${channel.id}">
+                    <div class="result-avatar" style="background: var(--primary-soft);"><i class="fas ${icon}"></i></div>
+                    <div class="result-info">
+                        <div class="result-name">${escapeHtml(channel.name)}</div>
+                        <div class="result-bio">${escapeHtml(channel.description || 'No description')}</div>
+                        <div class="result-meta"><i class="fas fa-users"></i> ${channel.member_count || 0} members</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        document.querySelectorAll('.result-card').forEach(card => {
+            card.addEventListener('click', () => {
+                window.location.href = `channel-view.html?id=${card.dataset.channelId}`;
+            });
+        });
+    }
+    
+    async function performSearch() {
+        const query = searchInput.value.trim();
+        if (currentFilter === 'users') await searchUsers(query);
+        else if (currentFilter === 'posts') await searchPosts(query);
+        else if (currentFilter === 'channels') await searchChannels(query);
+    }
+    
+    searchInput.addEventListener('input', () => {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(performSearch, 500);
+    });
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            filterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            performSearch();
+        });
+    });
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+            if (page === 'home') window.location.href = 'home.html';
+            if (page === 'chats') window.location.href = 'chats.html';
+            if (page === 'profile') window.location.href = 'profile.html';
+        });
+    });
+    
+    document.getElementById('backBtn')?.addEventListener('click', () => window.location.href = 'home.html');
+    document.getElementById('logo')?.addEventListener('click', () => window.location.href = 'home.html');
+    notificationIcon?.addEventListener('click', () => window.location.href = 'notifications.html');
+    document.getElementById('logoutIcon')?.addEventListener('click', async () => {
+        await _supabase.auth.signOut();
+        window.location.href = 'login.html';
+    });
+    
+    async function init() {
+        await checkAuth();
+        await updateNotificationBadge();
+        setInterval(updateNotificationBadge, 30000);
+    }
+    init();
+})();
+</script>
+</body>
+</html>

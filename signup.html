@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B1220">
+    <title>Sign Up - ZERØBYTE</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0B1220;
+            --bg-secondary: #111827;
+            --bg-glass: rgba(17, 24, 39, 0.7);
+            --bg-glass-solid: rgba(17, 24, 39, 0.95);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --primary: #8B5CF6;
+            --primary-hover: #7C3AED;
+            --primary-soft: rgba(139, 92, 246, 0.15);
+            --error: #EF4444;
+            --success: #10B981;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] {
+            --bg-primary: #F8FAFC;
+            --bg-glass-solid: rgba(255, 255, 255, 0.95);
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --border-glass: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 30% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            animation: rotate 40s linear infinite;
+        }
+        
+        .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: radial-gradient(circle at 70% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
+            animation: rotate-reverse 50s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        .signup-container { width: 100%; max-width: 520px; }
+        
+        .signup-card {
+            background: var(--bg-glass-solid);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-2xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-glass);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--primary-soft);
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        
+        .logo-icon i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .logo h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
+        .input-wrapper { position: relative; }
+        .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-field {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.75rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-xl);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+        .password-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); }
+        
+        .error-message { color: var(--error); font-size: 0.75rem; margin-top: 0.5rem; display: none; }
+        .error-message.show { display: block; }
+        
+        .btn-signup {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-xl);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-signup:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-signup:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .terms { margin: 1.5rem 0; }
+        .checkbox-label { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; color: var(--text-secondary); font-size: 0.875rem; }
+        .checkbox-label input { width: 1.125rem; height: 1.125rem; cursor: pointer; accent-color: var(--primary); }
+        .checkbox-label a { color: var(--primary); text-decoration: none; }
+        
+        .divider { display: flex; align-items: center; text-align: center; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.75rem; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-glass); }
+        .divider span { padding: 0 1rem; }
+        
+        .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: var(--text-muted); }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        
+        .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-glass);
+            z-index: 1100;
+            animation: slideUp 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        
+        .error-box { background: rgba(239, 68, 68, 0.15); border-left: 4px solid #EF4444; padding: 0.75rem; border-radius: 12px; margin-bottom: 1.5rem; display: none; }
+        .error-box.show { display: block; }
+        .error-box p { font-size: 0.875rem; color: #EF4444; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .admin-notice {
+            background: linear-gradient(135deg, var(--primary-soft), rgba(139, 92, 246, 0.1));
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--primary);
+            display: none;
+        }
+        
+        @media (max-width: 480px) { .signup-card { padding: 1.5rem; } }
+    </style>
+</head>
+<body>
+
+<div class="animated-bg"></div>
+
+<div class="signup-container">
+    <div class="signup-card">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+            <h1>Create Account</h1>
+            <p>Join the ZERØBYTE community</p>
+        </div>
+        
+        <div id="errorBox" class="error-box">
+            <p><i class="fas fa-exclamation-circle"></i> <span id="errorMessage"></span></p>
+        </div>
+        
+        <div id="adminNotice" class="admin-notice">
+            <i class="fas fa-crown"></i> Admin account detected! You will receive special privileges.
+        </div>
+        
+        <form id="signupForm">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="fullName" class="input-field" placeholder="Enter your full name">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-at input-icon"></i>
+                    <input type="text" id="username" class="input-field" placeholder="Choose a username" required>
+                </div>
+                <div class="error-message" id="usernameError">Username must be 3-20 characters (letters, numbers, underscore only)</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" class="input-field" placeholder="Enter your email" required>
+                </div>
+                <div class="error-message" id="emailError">Please enter a valid email address</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" class="input-field" placeholder="Create a password" required>
+                    <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+                </div>
+                <div class="error-message" id="passwordError">Password must be at least 8 characters with uppercase, lowercase, and number</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm your password" required>
+                    <i class="fas fa-eye password-toggle" id="toggleConfirmPassword"></i>
+                </div>
+                <div class="error-message" id="confirmError">Passwords do not match</div>
+            </div>
+            
+            <div class="terms">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="termsCheckbox">
+                    <span>I agree to the Terms of Service and Privacy Policy</span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-signup" id="signupBtn" disabled>
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </form>
+        
+        <div class="divider"><span>OR</span></div>
+        
+        <div class="login-link">
+            Already have an account? <a href="login.html">Sign in</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+    const SUPABASE_URL = 'https://tzfnmcbegbuwuzkqdphy.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6Zm5tY2JlZ2J1d3V6a3FkcGh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3MDM3NTEsImV4cCI6MjA5NTI3OTc1MX0.RQJIfVX_HB-4mtcqmZHrowyFXyGJTxoL6wNj6Y5R6Hk';
+    
+    const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    const form = document.getElementById('signupForm');
+    const fullNameInput = document.getElementById('fullName');
+    const usernameInput = document.getElementById('username');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const signupBtn = document.getElementById('signupBtn');
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const adminNotice = document.getElementById('adminNotice');
+    const errorBox = document.getElementById('errorBox');
+    const errorMessageSpan = document.getElementById('errorMessage');
+    
+    const usernameError = document.getElementById('usernameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmError = document.getElementById('confirmError');
+    
+    let isUsernameAvailable = false;
+    let usernameTimeout;
+    
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    initTheme();
+    
+    function showError(message) {
+        errorMessageSpan.textContent = message;
+        errorBox.classList.add('show');
+        setTimeout(() => errorBox.classList.remove('show'), 5000);
+    }
+    
+    function showToast(message, type = 'info') {
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        const icon = type === 'error' ? 'fa-exclamation-circle' : type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+        toast.innerHTML = `<i class="fas ${icon}" style="margin-right: 0.5rem;"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function setupPasswordToggle(toggleId, inputId) {
+        const toggle = document.getElementById(toggleId);
+        const input = document.getElementById(inputId);
+        let visible = false;
+        toggle.addEventListener('click', () => {
+            visible = !visible;
+            input.type = visible ? 'text' : 'password';
+            toggle.className = visible ? 'fas fa-eye-slash password-toggle' : 'fas fa-eye password-toggle';
+        });
+    }
+    setupPasswordToggle('togglePassword', 'password');
+    setupPasswordToggle('toggleConfirmPassword', 'confirmPassword');
+    
+    function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function validatePasswordStrength(password) { return password.length >= 8 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password); }
+    
+    function validatePasswordMatch() {
+        if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+            confirmError.classList.add('show');
+            return false;
+        } else {
+            confirmError.classList.remove('show');
+            return true;
+        }
+    }
+    confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+    
+    async function checkUsernameAvailability(username) {
+        if (!username || username.length < 3) {
+            isUsernameAvailable = false;
+            return false;
+        }
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        if (!usernameRegex.test(username)) {
+            isUsernameAvailable = false;
+            usernameError.classList.add('show');
+            return false;
+        } else {
+            usernameError.classList.remove('show');
+        }
+        try {
+            const { data } = await _supabase.from('users').select('username').eq('username', username.toLowerCase()).maybeSingle();
+            isUsernameAvailable = !data;
+            return isUsernameAvailable;
+        } catch (error) {
+            isUsernameAvailable = false;
+            return false;
+        }
+    }
+    
+    usernameInput.addEventListener('input', () => {
+        const username = usernameInput.value.trim();
+        if (usernameTimeout) clearTimeout(usernameTimeout);
+        usernameTimeout = setTimeout(() => {
+            if (username.length >= 3) checkUsernameAvailability(username);
+        }, 500);
+        validateForm();
+    });
+    
+    emailInput.addEventListener('input', () => {
+        if (emailInput.value && !validateEmail(emailInput.value)) {
+            emailError.classList.add('show');
+        } else {
+            emailError.classList.remove('show');
+        }
+        const adminEmails = ['okpalachimaobi55@gmail.com', 'codextech71@gmail.com'];
+        if (adminEmails.includes(emailInput.value.trim())) {
+            adminNotice.style.display = 'block';
+        } else {
+            adminNotice.style.display = 'none';
+        }
+        validateForm();
+    });
+    
+    passwordInput.addEventListener('input', () => {
+        if (passwordInput.value && !validatePasswordStrength(passwordInput.value)) {
+            passwordError.classList.add('show');
+        } else {
+            passwordError.classList.remove('show');
+        }
+        validateForm();
+    });
+    
+    function validateForm() {
+        let isValid = true;
+        if (!usernameInput.value.trim() || usernameInput.value.length < 3 || !isUsernameAvailable) isValid = false;
+        if (!validateEmail(emailInput.value)) isValid = false;
+        if (!validatePasswordStrength(passwordInput.value)) isValid = false;
+        if (passwordInput.value !== confirmPasswordInput.value) isValid = false;
+        if (!termsCheckbox.checked) isValid = false;
+        signupBtn.disabled = !isValid;
+        return isValid;
+    }
+    
+    termsCheckbox.addEventListener('change', validateForm);
+    fullNameInput.addEventListener('input', validateForm);
+    
+    async function handleSignup(e) {
+        e.preventDefault();
+        errorBox.classList.remove('show');
+        
+        if (!validateForm()) {
+            showError('Please fill all required fields correctly.');
+            return;
+        }
+        
+        signupBtn.disabled = true;
+        const originalHtml = signupBtn.innerHTML;
+        signupBtn.innerHTML = '<div class="spinner"></div><span>Creating account...</span>';
+        
+        try {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const username = usernameInput.value.trim().toLowerCase();
+            const fullName = fullNameInput.value.trim() || username;
+            
+            const { data: existingUser } = await _supabase.from('users').select('email').eq('email', email).maybeSingle();
+            if (existingUser) {
+                showError('An account with this email already exists.');
+                return;
+            }
+            
+            const { data: authData, error: authError } = await _supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: { data: { username: username, full_name: fullName } }
+            });
+            
+            if (authError) {
+                if (authError.message.includes('User already registered')) showError('Email already registered.');
+                else showError(authError.message);
+                return;
+            }
+            
+            if (authData.user) {
+                const adminEmails = ['okpalachimaobi55@gmail.com', 'codextech71@gmail.com'];
+                const isAdmin = adminEmails.includes(email);
+                
+                const { error: insertError } = await _supabase.from('users').insert({
+                    id: authData.user.id,
+                    username: username,
+                    email: email,
+                    display_name: fullName,
+                    role: isAdmin ? 'superadmin' : 'user',
+                    verification_badge: isAdmin ? 'admin' : 'none',
+                    created_at: new Date().toISOString(),
+                    last_active_at: new Date().toISOString()
+                });
+                
+                if (insertError) console.error('Insert error:', insertError);
+                
+                showToast(isAdmin ? '✅ Admin account created!' : 'Account created successfully!', 'success');
+                
+                await _supabase.auth.signInWithPassword({ email: email, password: password });
+                
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 1500);
+            }
+        } catch (error) {
+            showError('Network error. Please check your connection.');
+        } finally {
+            signupBtn.disabled = false;
+            signupBtn.innerHTML = originalHtml;
+        }
+    }
+    
+    form.addEventListener('submit', handleSignup);
+})();
+</script>
+</body>
+</html>
